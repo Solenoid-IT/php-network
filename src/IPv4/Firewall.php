@@ -25,24 +25,39 @@ class Firewall
         $this->whitelist = $whitelist;
     }
 
-    # Returns [Firewall]
-    public static function create (array $blacklist = [], array $whitelist = [])
+
+
+    # Returns [self]
+    public function allow (string $range)
     {
+        // (Appending the value)
+        $this->whitelist[] = $range;
+
         // Returning the value
-        return new Firewall( $blacklist, $whitelist );
+        return $this;
+    }
+
+    # Returns [self]
+    public function deny (string $range)
+    {
+        // (Appending the value)
+        $this->blacklist[] = $range;
+
+        // Returning the value
+        return $this;
     }
 
 
 
     # Returns [bool]
-    public function check (string $ip)
+    public function pass (string $ip)
     {
         // (Getting the value)
         $ip = IPv4::select( $ip );
 
 
 
-        foreach ($this->blacklist as $range)
+        foreach ( $this->blacklist as $range )
         {// Processing each entry
             if ( Range::select( $range )->contains_ip( $ip ) )
             {// Match failed
@@ -53,7 +68,7 @@ class Firewall
 
 
 
-        foreach ($this->whitelist as $range)
+        foreach ( $this->whitelist as $range )
         {// Processing each entry
             if ( Range::select( $range )->contains_ip( $ip ) )
             {// Match OK
@@ -74,15 +89,6 @@ class Firewall
 
         // Returning the value
         return true;
-    }
-
-
-
-    # Returns [assoc]
-    public function to_array ()
-    {
-        // Returning the value
-        return get_object_vars( $this );
     }
 }
 
